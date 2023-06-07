@@ -1,20 +1,9 @@
-// import { Module } from '@nestjs/common';
-// import { AppController } from './app.controller';
-// import { AppService } from './app.service';
-// import { ClientsModule } from './clients/clients.module';
-// import { ClientService } from './clients/clients.service';
-
-// @Module({
-//   imports: [ClientsModule],
-//   controllers: [AppController],
-//   providers: [AppService, ClientService],
-// })
-// export class AppModule {}
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Client } from './clients/clients.entity';
-import { ClientsController } from './clients/clients.controller';
-import { ClientService } from './clients/clients.service';
+import { Client } from './clients/entity/clients.entity';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { ClientsModule } from './clients/clients.module';
 
 @Module({
   imports: [
@@ -23,14 +12,14 @@ import { ClientService } from './clients/clients.service';
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: 'password',
+      password: 'root',
       database: 'abmclients',
       entities: [Client],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Client]),
+    ClientsModule
   ],
-  controllers: [ClientsController],
-  providers: [ClientService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

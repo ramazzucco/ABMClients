@@ -1,30 +1,34 @@
-import { Controller, Get, Post, Body, Put, Delete, Param } from '@nestjs/common';
-import { Client } from './clients.entity';
+import { Controller, Get, Post, Body, Put, Delete, Param, Res, NotFoundException, HttpStatus } from '@nestjs/common';
+import { Client } from './entity/clients.entity';
 import { ClientService } from './clients.service';
-import { CreateClientDto } from './dto/create-clients.dto';
-import { UpdateClientDto } from './dto/update-clients.dto';
+import { Response } from 'express';
+import { ClientDto } from './dto/clients.dto';
 
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get()
-  async findAll(): Promise<Client[]> {
-    return await this.clientService.findAll();
+  async findAll(@Res() res: Response) {
+    const clients = await this.clientService.findAll();
+    if(!clients) throw new NotFoundException('CLIENT_NOT_FOUND');
+    return res.status(HttpStatus.OK).json(clients);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Client> {
-    return await this.clientService.findOne(id);
+  async findOne(@Param('id') id: number, @Res() res: Response) {
+    const client = await this.clientService.findOne(id);
+    if(!client) throw new NotFoundException('CLIENT_NOT_FOUND');
+    return res.status(HttpStatus.OK).json(client);
   }
 
   @Post()
-  async create(@Body() createClientDto: CreateClientDto): Promise<Client> {
+  async create(@Body() createClientDto: ClientDto): Promise<Client> {
     return await this.clientService.create(createClientDto);
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() updateClientDto: UpdateClientDto): Promise<Client> {
+  async update(@Param('id') id: number, @Body() updateClientDto: ClientDto): Promise<Client> {
     return await this.clientService.update(id, updateClientDto);
   }
 
