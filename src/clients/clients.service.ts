@@ -13,26 +13,75 @@ export class ClientService {
 
   async findAll(): Promise<Client[]> {
     const clients = await this.clientRepository.find();
-    return clients.map(x => new ClientDto(x));
+    return clients;
   }
 
-  async findOne(id: number): Promise<Client> {
-    const client = await this.clientRepository.findOneBy({id});
-    return new ClientDto(client);
+  async findOne(id: number) {
+    try {
+      const client = await this.clientRepository.findOneBy({id});
+      return new ClientDto(client);
+    } catch (error) {
+      return null;
+    }
   }
 
-  async create(createClientDto: ClientDto): Promise<Client> {
-    const client = new Client(createClientDto);
-    return await this.clientRepository.save(client);
+  async search(params: any) {
+    try {
+      const clients = await this.clientRepository
+        .createQueryBuilder('client')
+        .select()
+        .where(`client.firstName LIKE :first OR client.lastName LIKE :last`,
+          { first: `%${params.firstName}%`, last: `%${params.lastName}%` }
+        )
+        .getMany();
+      return clients.map(x => new ClientDto(x));
+    } catch (error) {
+      return null;
+    }
   }
 
-  async update(id: number, updateClientDto: ClientDto): Promise<Client> {
-    let clientToUpdate = await this.clientRepository.findOneBy({id});
-    let update = Object.assign(clientToUpdate, updateClientDto)
-    return await this.clientRepository.save(update);
+  async create(createClientDto: ClientDto): Promise<any>{
+    const client = new ClientDto(createClientDto);
+    return await this.clientRepository.exist({
+      where: {
+        firstName: createClientDto.firstName, lastName: createClientDto.lastName
+      }
+    }).then(async res => {
+      if(!res) {
+        try {
+          return await this.clientRepository.save(client);
+        } catch (error) {
+          const { code, sqlMessage, index } = error;
+          return {  code, sqlMessage, index  };
+        }
+      }
+      return null;
+    });
   }
 
-  async delete(id: number): Promise<void> {
-    await this.clientRepository.delete(id);
+  async update(id: number, updateClientDto: Client): Promise<any> {
+    try {
+      let clientToUpdate = await this.clientRepository.findOneBy({id});
+      if(!clientToUpdate) return null;
+      let update = Object.assign(clientToUpdate, updateClientDto)
+      return await this.clientRepository.save(update);
+    } catch (error) {
+      const { code, sqlMessage, index } = error;
+      return {  code, sqlMessage, index  };
+    }
+  }
+
+  async delete(id: number): Promise<any> {
+    const clientToDelete = await this.clientRepository.findOneBy({id});
+    if(clientToDelete) {
+      try {
+        await this.clientRepository.delete(id);
+        return { deleted: true };
+      } catch (error) {
+        const { code, sqlMessage, index } = error;
+        return {  code, sqlMessage, index  };
+      }
+    }
+    return null;
   }
 }

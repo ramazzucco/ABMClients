@@ -1,3 +1,4 @@
+import { IsDate, IsEmail, isEmail } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
@@ -23,20 +24,21 @@ export class Client {
   @Column()
   phone: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
+  @IsEmail()
   email: string;
 
   @Column({type: 'timestamp', default: () => "CURRENT_TIMESTAMP"})
   modified: Date;
 
-  constructor(client: Client) {
-    if(!client) return;
-    this.firstName = client.firstName;
-    this.lastName = client.lastName;
-    this.birthday = new Date(client.birthday);
-    this.CUIT = client.CUIT;
-    this.address = client.firstName;
-    this.phone = client.phone;
-    this.email = client.email;
-  }
+  // constructor(client: Client) {
+  //   if(!client) return;
+  //   this.firstName = client.firstName;
+  //   this.lastName = client.lastName;
+  //   this.birthday = new Date(client.birthday);
+  //   this.CUIT = client.CUIT;
+  //   this.address = client.firstName;
+  //   this.phone = client.phone;
+  //   this.email = client.email;
+  // }
 }

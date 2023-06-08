@@ -9,13 +9,13 @@ export default abstract class BaseController {
 
   log(message: string, status: number) {
     const error = `[ERROR (${status}) - ${this.moduleName} ]: ${message}`
-    console.log(error, 'color: red');
+    console.error("\x1b[31m", error);
   }
 
   throwError(e: any) {
     this.log(e.message, e.status)
     switch (e.name) {
-      case 'BadRequestException':
+      case 'BadRequestException' || 'ER_BAD_NULL_ERROR':
         throw new BadRequestException(e.message);
       case 'ConflictException':
         throw new ConflictException(e.message);

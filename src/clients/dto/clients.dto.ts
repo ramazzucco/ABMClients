@@ -1,11 +1,6 @@
-import { IsNotEmpty, IsString, IsEmail, IsDate, IsNumber } from 'class-validator';
-import { Client } from '../entity/clients.entity';
+import { IsNotEmpty, IsString, IsEmail, IsDate, IsNumber, IsEmpty, isEmail } from 'class-validator';
 
 export class ClientDto {
-  @IsNotEmpty()
-  @IsNumber()
-  id: number;
-
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -30,18 +25,18 @@ export class ClientDto {
   @IsString()
   phone: string;
 
-  @IsNotEmpty()
   @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsDate()
   modified: Date;
 
-  constructor(client: Client) {
-    this.id = client.id;
+  constructor(client: ClientDto) {
+    if(!client) return;
     this.firstName = client.firstName;
     this.lastName = client.lastName;
-    this.birthday = client.birthday;
+    this.birthday = new Date(client.birthday);
     this.CUIT = client.CUIT;
     this.address = client.firstName;
     this.phone = client.phone;
